@@ -46,6 +46,8 @@ As the `zenoss` user, run the following command:
 
 This should install the ZenPack.
 
+After installation, remember to place your devices into the `/Server/Linux/ActiveMQ` Device Class and then to set your `zActiveMQUser` and `zActiveMQPassword` in the Device Class so that modelling and polling can be successful.
+
 ## What does the ZenPack provide?
 
 This ZenPack will create a __Device Class__ called /Devices/Server/Linux/ActiveMQ and set some default modeler plugins, including but not only `ActiveMQMap`, used to model queues in ActiveMQ servers.
