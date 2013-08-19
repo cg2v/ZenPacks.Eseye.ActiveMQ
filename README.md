@@ -39,7 +39,7 @@ And that should install the package for you as the `zenoss` user.
 ## INSTALLATION - ZenPacks.Eseye.ActiveMQ
 
 To install the ZenPack, the normal ZenPack installation instructions apply.
-Simply download the _.egg_ file from [here](http://some_url.com/activemq_zenpack) and upload it to your Zenoss server.
+Simply download the _.egg_ file from this repository and upload it to your Zenoss server.
 As the `zenoss` user, run the following command:
 
 	zenpack --install=ZenPacks.Eseye.ActiveMQ-1.4.0-py2.7.egg
@@ -50,7 +50,7 @@ This should install the ZenPack.
 
 This ZenPack will create a __Device Class__ called /Devices/Server/Linux/ActiveMQ and set some default modeler plugins, including but not only `ActiveMQMap`, used to model queues in ActiveMQ servers.
 
-Also will create a __Monitoring Template__ called ActiveMQQueue, which gets automatically assigned to each modelled ActiveMQ Queue (since it has the same name as the ActiveMQQueue python class). This provides graphs that show `consumerCount`, `enqueueCount` and `queueSize`.
+Also will create a __Monitoring Template__ called ActiveMQQueue, which gets automatically assigned to each modelled ActiveMQ Queue (since it has the same name as the ActiveMQQueue python class). This provides graphs that show `consumerCount`, `enqueueCount`, `dequeueCount` and `queueSize`.
 
 It also provides a threshold on `consumerCount` that will raise an Error (escalating to Critical) if the consumer count is 0.
 
