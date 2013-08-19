@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configure xmlns="http://namespaces.zope.org/zope"
+	xmlns:browser="http://namespaces.zope.org/browser">
+
+	<adapter
+            factory=".info.ActiveMQQueueInfo"
+            for=".ActiveMQQueue.ActiveMQQueue"
+            provides=".interfaces.IActiveMQQueueInfo"
+            />
+
+	<browser:resourceDirectory
+            name="ActiveMQ"
+            directory="browser/resources"
+            />
+
+	<browser:viewlet
+            name="js-activemq"
+            paths="/++resource++ActiveMQ/js/ActiveMQ.js"
+            weight="10"
+            for=".ActiveMQQueue.ActiveMQQueue"
+            manager="Products.ZenUI3.browser.interfaces.IJavaScriptSrcManager"
+            class="Products.ZenUI3.browser.javascript.JavaScriptSrcBundleViewlet"
+            permission="zope2.Public"
+            />
+
+	<include package=".browser"/>
+
+</configure>
