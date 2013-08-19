@@ -1,164 +1,59 @@
-# ZenPack Template
-This README describes the structure of the ZenPack template that gets
-automatically created by Zenoss when you add a ZenPack through the web
-interface.
+# README
 
-## Files
-At the top-level a ZenPack must have a setup.py. Almost always a MANIFEST.in
-file should exist, and in cases where external dependencies must be built for
-inclusion in the ZenPack, a GNUmakefile. Examples of these files with inline
-comments are included in this template.
+## DEPENDENCIES
 
-Also included in the ZenPackTemplate is a configure.zcml. As more of Zenoss'
-extensibility moves to using ZCA (Zope Component Architecture) this file
-becomes crucial to hooking into various aspects of Zenoss.
+`stomppy` (python library for STOMP communication with ActiveMQ)<br/>
+`pythonssl` (stomppy dep. - included in Zenoss environment)
 
-## Files and Subdirectories
-The following sections describe the purpose and use for each of the default
-subdirectories. Note that if the described functionality is not of use in your
-ZenPack it is safe to remove any of the default directories.
+## INSTALLATION - stomppy
 
-### src/
-The src/ top-level directory in ZenPacks is the conventional place to add
-third-party dependencies to your ZenPack. It should only be used as a staging
-area to do any build work necessary for the dependency.
+To install, there are a few steps. Because the Python environment for Zenoss __is not__ the same as for the system, you cannot install `stomppy` with an _.RPM_ package, as this would install it for the system environment. You must install `stomppy` manually as the Zenoss user.
 
-See GNUmakefile (or GNUmakefile.example) for examples of how to have
-your third-party dependencies automatically compiled and installed at the right
-time and into the right location.
+To download the _.RPM_ file, go [here](https://code.google.com/p/stomppy/downloads/list) and download the __version 3.1.3__ _.tar.gz_. You will then need to upload it to your zenoss server.
 
-### ZenPacks/NAMESPACE/PACKNAME/
-The following sections describe the directories contained within the
-namespaced ZenPacks/NAMESPACE/PACKNAME/ subdirectories.
+Un-tar the file by running `tar -zxvf stomppy-3.1.3.tar.gz` and then move the resulting file to a temporary folder in the zenoss home folder. This could be a sequence of instructions to follow:
 
-#### bin/
-Any general tools delivered by your ZenPack that would be used by the Zenoss
-administrator at the command line should go into this directory by convention.
-When the ZenPack is installed all files in this directory will be made
-executable.
+	sudo su
+	tar -zxvf stomppy-3.1.3.tar.gz
+	mkdir /opt/zenoss/local
+	mv stomppy-3.1.3 /opt/zenoss/local
+	chown zenoss stomppy-3.1.3
+	su - zenoss
+	python stomppy-3.1.3/setup.py install
 
-#### browser/
-The browser subdirectory should contain all code and configuration that's
-specific to the Zenoss web interface. The provided configure.zcml will
-automatically load the example browser/configure.zcml and register the
-browser/resources/ subdirectory to serve static web content.
+This should install stomppy into your Zenoss environment, and now the ActiveMQ ZenPack should have all its dependencies satisfied.
 
-#### daemons/
-All files in the daemons/ subdirectory get special handling. Upon installing
-the ZenPack, the following actions will occur.
+Another way to install `stomppy` is via the `easy_install-2.7` script that comes with Zenoss. The instructions to do this are simple:
 
-    1. The file will be made executable (chmod 0755)
-    2. A symlink to the file will be created in $ZENHOME/bin/
-    3. An configuration file will be generated at $ZENHOME/etc/DAEMON_NAME.conf
+As the `zenoss` user, run the `easy_install-2.7` script with a `.tar.gz` python package as a command-line argument. The script will download the package and run `setup.py` for you.
 
-Assuming that you don't have a $ZENHOME/etc/DAEMONS_TXT_ONLY file this daemon
-will also become part of the normal zenoss start and stop processes.
+Lets say the download link for our `.tar.gz` file is https://code.google.com/p/stomppy/download (which it isn't, but just for the sake of example). These are the commands we would have to run.
 
-You can find an example daemon control script in daemons/zenexample. For most
-purposes this file can be renamed to the name of the daemon you want to create
-and modified to change the DAEMON_NAME. No other modifications are typically
-needed. Note that this example control script does expect to launch the real
-daemon code which should be located at ../DAEMON_NAME.py.
+	sudo su
+	su - zenoss
+	cd /opt/zenoss/bin
+	easy_install-2.7 https://code.google.com/p/stomppy/download
 
-#### datasources/
-Any new datasource types you want to add must be added as classes into the
-datasources/ subdirectory. When Zenoss is building the list of available
-datasources it will scan the datasources/ subdirectory for all installed
-ZenPacks.
+And that should install the package for you as the `zenoss` user.
 
-An example datasource at datasources/ExampleDataSource.py.example.
+## INSTALLATION - ZenPacks.Eseye.ActiveMQ
 
-#### lib/
-The lib/ directory should be the installation target for any third-party
-libraries that are built by the GNUmakefile. It can also be used as the
-conventional location to drop Python-only libraries that don't require
-any compilation or special installation.
+To install the ZenPack, the normal ZenPack installation instructions apply.
+Simply download the _.egg_ file from [here](http://some_url.com/activemq_zenpack) and upload it to your Zenoss server.
+As the `zenoss` user, run the following command:
 
-#### libexec/
-Any scripts executed by COMMAND datasources in your ZenPack go in this
-directory by convention. When the ZenPack is installed all files in this
-directory will be made executable.
+	zenpack --install=ZenPacks.Eseye.ActiveMQ-1.4.0-py2.7.egg
 
-#### migrate/
-ZenPacks can include migrate scripts that allow you to run custom code to
-handle any tasks that are needed to upgrade your ZenPack from one version to
-another. All .py files in this migrate/ subdirectory will be evaluated when the
-ZenPack is installed.
+This should install the ZenPack.
 
-You can find an example migrate script at migrate/ExampleMigration.py.
+## What does the ZenPack provide?
 
-#### modeler/
-Any modeler plugins distributed with your ZenPack must be located under the
-plugins/ subdirectory. The directory structure and filenames under plugins/
-map directly to the plugins' name in the user interface. For example, if you
-wanted to create a modeler plugin called "community.snmp.ExampleMap" you would
-create the following directory structure.
+This ZenPack will create a __Device Class__ called /Devices/Server/Linux/ActiveMQ and set some default modeler plugins, including but not only `ActiveMQMap`, used to model queues in ActiveMQ servers.
 
-It is recommended that the first portion of the namespace be a short lowercase
-form of your name, or organization's name. Alternatively you can choose to use
-"community" if you plan to publish the ZenPack and are open to outside
-contributions. Zenoss, Inc. will always use "zenoss." The second portion of the
-namespace can be the protocol that is used to collect the data. If you are not
-using a common protocol it is acceptable to skip the second portion of the
-namespace and have something like "community.MongoDB" instead.
+Also will create a __Monitoring Template__ called ActiveMQQueue, which gets automatically assigned to each modelled ActiveMQ Queue (since it has the same name as the ActiveMQQueue python class). This provides graphs that show `consumerCount`, `enqueueCount` and `queueSize`.
 
-plugins/
-    __init__.py
-    community/
-        __init__.py
-        snmp/
-            __init__.py
-            ExampleMap.py
+It also provides a threshold on `consumerCount` that will raise an Error (escalating to Critical) if the consumer count is 0.
 
-Note that the __init__.py files must exist and should be empty files. Otherwise
-your modeler plugins won't be imported and usable within Zenoss.
+## REMOVING - ZenPacks.Eseye.ActiveMQ
 
-#### objects/
-All .xml files in this objects/ directory will be loaded into the object
-database when the ZenPack installs. All of the objects defined in the XML files
-will be automatically associated with the ZenPack.
-
-When you export the ZenPack from the user interface all objects associated with
-the ZenPack will be exported into a file called "objects.xml" specifically. For
-this reason it is recommended to let Zenoss manage the objects.xml file and to
-never manually create or modify any .xml files in this directory unless you
-know what you're doing.
-
-When a ZenPack is removed, any objects associated with the ZenPack will be
-recursively removed from Zenoss. For example, if you associated the /Server
-device class with your ZenPack and removed the ZenPack, the /Server device
-class, and all devices within it would also be deleted.
-
-When a ZenPack is upgraded, or re-installed on top of itself, all objects in
-the XML files are overlaid on the existing object database. This results in a
-merge of the existing objects and what are defined in the XML files with the
-XML file properties and relationships winning any conflicts.
-
-#### reports/
-Custom reports will be loaded from this directory when the ZenPack is
-installed. Subdirectories (with the exception of plugins/) will be mapped
-directly to the report folders in the web interface. So if you add a .rpt file
-into a subdirectory named "Performance Reports" you will find your report in
-the Performance Reports folder in the web interface after installing the
-ZenPack.
-
-The plugins/ subdirectory should include any Python plugins your custom reports
-call. So if your .rpt file contains a line such as the following..
-
-objects python:here.ReportServer.plugin('myplugin', tableState);
-
-There should be a corresponding myplugin.py file in the plugins/ subdirectory.
-
-You can find an example report at Example Reports/Example Report.rpt.example
-that uses a plugin which can be found at plugins/example_plugin.py.
-
-#### services/
-ZenHub services will be loaded from the services/ directory. These services
-run inside the zenhub daemon and are responsible from all interaction with
-collector daemons.
-
-You can find an example service at services/ExampleConfigService.py.
-
-#### tests/
-All unit tests for your ZenPack should live in this directory. You can find an
-example test suite at tests/testExample.py.
+If you remove the `ZenPacks.Eseye.ActiveMQ` ZenPack it will remove the /Devices/Server/Linux/ActiveMQ __Device Class__ ___AND ALL DEVICES UNDER IT!___. Make sure to move the devices under that __Device Class__ somewhere else (maybe _ActiveMQtmp_) before removing the ZenPack!
