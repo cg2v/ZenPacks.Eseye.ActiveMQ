@@ -28,12 +28,13 @@ This should install stomppy into your Zenoss environment, and now the ActiveMQ Z
 ## INSTALLATION - ZenPacks.Eseye.ActiveMQ
 
 To install the ZenPack, the normal ZenPack installation instructions apply.
-Simply download the _.egg_ file from this repository and upload it to your Zenoss server.
+
+Copy a git export (or extract a release tarball if there ever are any) to your zenoss server
 As the `zenoss` user, run the following command:
 
-	zenpack --install=ZenPacks.Eseye.ActiveMQ-1.4.0-py2.7.egg
+	zenpack --install=/path/to/directory
 
-This should install the ZenPack.
+The correct directory path is the one that contains the ZenPacks.Eseye.ActiveMQ.egg-info file. This should install the ZenPack. Don't forget to restart zenoss after the installation.
 
 After installation, remember to place your devices into the `/Server/Linux/ActiveMQ` Device Class and then to set your `zActiveMQUser` and `zActiveMQPassword` in the Device Class so that modelling and polling can be successful.
 
