@@ -86,17 +86,17 @@ def main(argv):
 
         queues = []
 
-        conn = stomp.Connection([(ipaddress, 61613)], user, password)
+        conn = stomp.Connection([(ipaddress, 61613)])
 
         listener = MyListener()
         conn.set_listener('', listener)
 
         conn.start()
-        conn.connect(wait=True)
+	conn.connect(wait=True, username=user, passcode=password)
         conn.subscribe(destination='/temp-queue/ActiveMQ.Queues', ack='auto', transformation="jms-map-json", id="zenoss")
 
         dest = 'ActiveMQ.Statistics.Destination.%s' % (component)
-        conn.send("", destination=dest, headers={'reply-to':'/temp-queue/ActiveMQ.Queues'})
+        conn.send(body="", destination=dest, headers={'reply-to':'/temp-queue/ActiveMQ.Queues'})
 
         time.sleep(10)
 

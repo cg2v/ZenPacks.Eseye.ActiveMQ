@@ -2,39 +2,28 @@
 
 ## DEPENDENCIES
 
-`stomppy` (python library for STOMP communication with ActiveMQ)<br/>
-`pythonssl` (stomppy dep. - included in Zenoss environment)
+`stomp.py` (python library for STOMP communication with ActiveMQ)<br/>
+`pythonssl` (stomp.py dep. - included in Zenoss environment)
 
-## INSTALLATION - stomppy
+## INSTALLATION - stomp.py
+
+This release supports version 4.0 of stomp.py and does not work with earlier versions. Version 4.0.5 or newer is recommended.
 
 To install, there are a few steps. Because the Python environment for Zenoss __is not__ the same as for the system, you cannot install `stomppy` with an _.RPM_ package, as this would install it for the system environment. You must install `stomppy` manually as the Zenoss user.
 
-To download the _.RPM_ file, go [here](https://code.google.com/p/stomppy/downloads/list) and download the __version 3.1.3__ _.tar.gz_. You will then need to upload it to your zenoss server.
+To download the _.RPM_ file, go [here](https://github.com/jasonrbriggs/stomp.py/releases) and download the __version 4.0.5__ _.tar.gz_. You will then need to upload it to your zenoss server.
 
-Un-tar the file by running `tar -zxvf stomppy-3.1.3.tar.gz` and then move the resulting file to a temporary folder in the zenoss home folder. This could be a sequence of instructions to follow:
+Un-tar the file by running `tar -zxvf stomp.py-4.0.5.tar.gz` and then move the resulting file to a temporary folder in the zenoss home folder. This could be a sequence of instructions to follow:
 
 	sudo su
-	tar -zxvf stomppy-3.1.3.tar.gz
+	tar -zxvf stomp.py-4.0.5.tar.gz
 	mkdir /opt/zenoss/local
-	mv stomppy-3.1.3 /opt/zenoss/local
-	chown zenoss stomppy-3.1.3
+	mv stomp.py-4.0.5 /opt/zenoss/local
+	chown zenoss stomp.py-4.0.5
 	su - zenoss
-	python stomppy-3.1.3/setup.py install
+	python stomp.py-4.0.5/setup.py install
 
 This should install stomppy into your Zenoss environment, and now the ActiveMQ ZenPack should have all its dependencies satisfied.
-
-Another way to install `stomppy` is via the `easy_install-2.7` script that comes with Zenoss. The instructions to do this are simple:
-
-As the `zenoss` user, run the `easy_install-2.7` script with a `.tar.gz` python package as a command-line argument. The script will download the package and run `setup.py` for you.
-
-Lets say the download link for our `.tar.gz` file is https://code.google.com/p/stomppy/download (which it isn't, but just for the sake of example). These are the commands we would have to run.
-
-	sudo su
-	su - zenoss
-	cd /opt/zenoss/bin
-	easy_install-2.7 https://code.google.com/p/stomppy/download
-
-And that should install the package for you as the `zenoss` user.
 
 ## INSTALLATION - ZenPacks.Eseye.ActiveMQ
 

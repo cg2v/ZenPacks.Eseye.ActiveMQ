@@ -33,7 +33,7 @@ class ActiveMQMap(PythonPlugin):
                 user = getattr(device, 'zActiveMQUser', None)
                 password = getattr(device, 'zActiveMQPassword', None)
 
-                conn = stomp.Connection([(ipaddress, 61613)], user, password)
+                conn = stomp.Connection([(ipaddress, 61613)])
                 if conn:
                         log.debug('Connection to %s successfully established' % ipaddress)
                 listener = MyListener()
@@ -41,11 +41,11 @@ class ActiveMQMap(PythonPlugin):
                 listener.set_logger(log)
                 #log.info('Listener added')
                 conn.start()
-                conn.connect(wait=True)
+                conn.connect(wait=True, username=user, passcode=password)
                 conn.subscribe(destination='/temp-queue/ActiveMQ.Queues', ack='auto', transformation="jms-map-json", id="zenoss")
 
                 #log.info("Subscribed to /temp-queue/ActiveMQ.Queues")
-                conn.send("", destination='ActiveMQ.Statistics.Destination.>', headers={'reply-to':'/temp-queue/ActiveMQ.Queues'})
+                conn.send(body="", destination='ActiveMQ.Statistics.Destination.>', headers={'reply-to':'/temp-queue/ActiveMQ.Queues'})
 
                 time.sleep(10)
                 conn.unsubscribe(id="zenoss")
