@@ -31,7 +31,7 @@ ${here/id}
 3
 </property>
 <property type="string" id="commandTemplate" mode="w" >
-${here/ZenPackManager/packs/ZenPacks.Eseye.ActiveMQ/path}/libexec/atvmq_poll.py -u ${device/zActiveMQUser} -p ${device/zActiveMQPassword} -c ${here/id} -d ${device/id} --ip=${here/manageIp}
+${here/ZenPackManager/packs/ZenPacks.Eseye.ActiveMQ/path}/libexec/atvmq_poll.py -u ${device/zActiveMQUser} -p ${device/zActiveMQPassword} -c ${here/id} -d ${device/id} --ip=${here/manageIp} --port=${device/zActiveMQStompPort} --sslport=${device/zActiveMQStompSslPort} --ssl=${device/zActiveMQUseSsl}
 </property>
 <property type="int" id="cycletime" mode="w" >
 60

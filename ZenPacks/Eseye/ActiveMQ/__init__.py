@@ -72,7 +72,10 @@ class ZenPack(ZenPackBase):
     """
     packZProperties = [
 	('zActiveMQUser', 'admin', 'string'),
-	('zActiveMQPassword', 'password', 'password')
+	('zActiveMQPassword', 'password', 'password'),
+	('zActiveMQStompPort', 61613, 'int'),
+	('zActiveMQStompSslPort', 61612, 'int'),
+	('zActiveMQUseSsl', False, 'boolean')
     ]
 
     def install(self, app):

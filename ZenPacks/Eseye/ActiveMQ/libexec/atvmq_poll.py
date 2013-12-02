@@ -47,6 +47,9 @@ def usage():
         print "-p PASS | --pass=PASS"
         print "-i IP_ADDRESS | --ip=IP_ADDRESS"
         print "-c COMPONENT | --component=COMPONENT"
+        print "--port=PORTNUM"
+        print "--sslport=PORTNUM"
+        print "--usessl=?"
 
 def main(argv):
 
@@ -55,9 +58,12 @@ def main(argv):
         ipaddress = ""
         component = ">"
         device = ""
+        port=61613
+        sslport=61612
+        usessl=False
 
         try:
-                opts, args = getopt.getopt(argv, "hu:p:i:c:d:", ["help", "user=", "pass=", "ip=", "component=", "device="])
+                opts, args = getopt.getopt(argv, "hu:p:i:c:d:", ["help", "user=", "pass=", "ip=", "component=", "device=", "port=", "sslport=", "usessl="])
         except getopt.GetoptError:
                 usage()
                 sys.exit(2)
@@ -80,13 +86,23 @@ def main(argv):
 
                 if opt in ("-d", "--device"):
                         device = arg
+                if opt == "--port":
+                        port=arg
+                if opt == "--sslport":
+                        sslport=arg
+                if opt == "--usessl":
+                        if arg == 'False':
+                                usessl=False
+                        else:
+                                usessl=bool(arg)
 
 
 ##################################### ENDOPTS
 
         queues = []
 
-        conn = stomp.Connection([(ipaddress, 61613)])
+        conn = stomp.Connection([(ipaddress, sslport if usessl else port)],
+				use_ssl=usessl)
 
         listener = MyListener()
         conn.set_listener('', listener)

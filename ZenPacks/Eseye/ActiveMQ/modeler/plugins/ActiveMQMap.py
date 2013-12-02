@@ -16,7 +16,10 @@ class ActiveMQMap(PythonPlugin):
 
 	deviceProperties = PythonPlugin.deviceProperties + (
 		'zActiveMQUser',
-		'zActiveMQPassword'
+		'zActiveMQPassword',
+		'zActiveMQStompPort',
+		'zActiveMQStompSslPort',
+		'zActiveMQUseSsl'
 	)
 
         def collect(self, device, log):
@@ -32,8 +35,11 @@ class ActiveMQMap(PythonPlugin):
                 log.info('%s' % ipaddress)
                 user = getattr(device, 'zActiveMQUser', None)
                 password = getattr(device, 'zActiveMQPassword', None)
+                port=getattr(device, 'zActiveMQStompPort', 61613)
+                sslport=getattr(device, 'zActiveMQStompSslPort', 61612)
+                usessl=getattr('zActiveMQUseSsl', False)
 
-                conn = stomp.Connection([(ipaddress, 61613)])
+                conn = stomp.Connection([(ipaddress, sslport if usessl else port)], use_ssl=usessl)
                 if conn:
                         log.debug('Connection to %s successfully established' % ipaddress)
                 listener = MyListener()
