@@ -6,11 +6,12 @@
             directory="resources"
             />
 
+      <!-- No for statement in following stanza - default is everything of object class Device    -->
+
       <viewlet
             name="js-activemq"
             paths="/++resource++ActiveMQ/js/ActiveMQ.js"
             weight="10"
-            for="..ActiveMQQueue.ActiveMQQueue"
             manager="Products.ZenUI3.browser.interfaces.IJavaScriptSrcManager"
             class="Products.ZenUI3.browser.javascript.JavaScriptSrcBundleViewlet"
             permission="zope2.Public"

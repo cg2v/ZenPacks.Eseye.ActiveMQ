@@ -55,6 +55,7 @@ class ActiveMQQueue(PythonPlugin):
 		rm.modname = "ZenPacks.Eseye.ActiveMQ.ActiveMQQueue"
 
 		queues = listener.get_queues()
+		log.info("%s", queues)
 		if len(queues) > 0:
 			#RETURN QUEUES FOR ADDITION TO ZODB
 			log.info('Queues: %d' % len(queues))

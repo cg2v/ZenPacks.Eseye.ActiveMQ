@@ -1,14 +1,21 @@
 (function() {
 	var ZC = Ext.ns('Zenoss.component');
 
-	ZC.QueueGridPanel = Ext.extend(ZC.ComponentGridPanel, {
+        /* the name following ZC. must exactly match the component name + Panel */
+	ZC.ActiveMQQueuePanel = Ext.extend(ZC.ComponentGridPanel, {
 			constructor: function(config) {
 				config = Ext.applyIf(config||{}, {
-					autoExpandColumn: 'QueueName',
 					componentType: 'ActiveMQQueue',
+                                        autoExpandColumn: 'QueueName',
 					fields: [
+                                        {name: 'uid'},
+                                        {name: 'name'},
+                                        {name: 'severity'},
 					{name: 'QueueName'},
-					{name: 'severity'},
+                                        {name: 'usesMonitorAttribute'},
+                                        {name: 'monitor'},
+                                        {name: 'monitored'},
+                                        {name: 'locking'}
 					],
 					columns: [{
 						id: 'severity',
@@ -21,25 +28,22 @@
 						dataIndex: 'QueueName',
 						header: _t('Queue Name'),
 						sortable: true,
-						width: 150
+						width: 300
+                                        },{
+                                                dataIndex: 'monitored',
+                                                header: _t('Monitored'),
+                                                renderer: Zenoss.render.checkbox,
+                                                sortable: true,
+                                                width: 65
+                                                    
 					}]
 				});
-				ZC.QueueGridPanel.superclass.constructor.call(this, config);
+				ZC.ActiveMQQueuePanel.superclass.constructor.call(this, config);
 			}
 		});
 
-	Ext.reg('QueueGridPanel', ZC.QueueGridPanel);
+	Ext.reg('ActiveMQQueuePanel', ZC.ActiveMQQueuePanel);
 	ZC.registerName('ActiveMQQueue', _t('Queue'), _t('Queues'));
 
-	Zenoss.nav.appendTo('Components', [{
-		id: 'component_queues',
-		text: _t('ActiveMQ Queues'),
-		xtype: 'QueueGridPanel',
-		subComponentGridPanel: true,
-		filterNav: true,
-		setContext: function(uid) {
-			ZC.QueueGridPanel.superclass.setContext.apply(this, [uid]);
-		}
-	}]);
 
 })();
