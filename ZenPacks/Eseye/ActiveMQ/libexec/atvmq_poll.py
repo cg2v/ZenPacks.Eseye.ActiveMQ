@@ -1,43 +1,16 @@
 #!/usr/bin/env python
 #
-import re
+import sys
+#import os
+#sys.path.insert(1, os.path.abspath(sys.path[0] + "/../lib"))
 import stomp, time
-import json
 import sys
 import getopt
 import logging
 logging.basicConfig()
-class MyListener(stomp.ConnectionListener):
-        queues = {}
 
-        def on_error(self, headers, message):
-                print 'error: %s' % message
-
-        def on_message(self, headers, message):
-                json_message = message
-                #print json_message
-                jsonLoad = json.loads(json_message)
-		#print jsonLoad
-                queueName = jsonLoad['map']['entry'][5]["string"][1].replace("queue://", "")
-
-                #Consumer Count is just that - how many consumers the queue has.
-                consumerCount = jsonLoad['map']['entry'][9]["long"]
-
-                #Queue Size in ActiveMQ Statistics is the number of messages currently in the queue.
-                size = jsonLoad['map']['entry'][6]["long"]
-
-                #enqueueCount is the total number of messages sent to this queue since the last broker restart.
-                enqueueCount = jsonLoad['map']['entry'][14]["long"]
-		dequeueCount = jsonLoad['map']['entry'][1]["long"]
-
-                if not re.search('ActiveMQ\.Statistics\.', queueName):
-                        self.queues[queueName] = [queueName, consumerCount, size, enqueueCount, dequeueCount]
-                        return queueName
-                else:
-                        return None
-
-        def get_queues(self):
-                return self.queues
+from ZenPacks.Eseye.ActiveMQ.stomputil import AppListener
+from ZenPacks.Eseye.ActiveMQ.amqutil import run_poll_loop
 
 ##################################### OPTS
 
@@ -99,35 +72,36 @@ def main(argv):
 
 ##################################### ENDOPTS
 
-        queues = []
+        queues = {}
 
         conn = stomp.Connection([(ipaddress, sslport if usessl else port)],
 				use_ssl=usessl)
 
-        listener = MyListener()
+        listener = AppListener()
         conn.set_listener('', listener)
 
         conn.start()
-	conn.connect(wait=True, username=user, passcode=password)
-        conn.subscribe(destination='/temp-queue/ActiveMQ.Queues', ack='auto', transformation="jms-map-json", id="zenoss")
+	conn.connect(wait=False, username=user, passcode=password)
+	listener.wait(10)
+	if not listener.ok():
+		print "ACTIVEMQ ERROR: Cannot get connect to activemq"
+		print listener.get_error_message()
+		#sys.exit(2)
+	(queues, ok, errmsg)=run_poll_loop(conn, listener, component)
+	if not ok:
+		print "ACTIVEMQ ERROR: Cannot get activemq statistics"
+		print emsg
+		sys.exit(2)
 
-        dest = 'ActiveMQ.Statistics.Destination.%s' % (component)
-        conn.send(body="", destination=dest, headers={'reply-to':'/temp-queue/ActiveMQ.Queues'})
-
-        time.sleep(10)
-
-        conn.unsubscribe(id="zenoss")
-        conn.disconnect()
-
-        output = ""
-
-        queues = listener.get_queues()
         if len(queues) > 0:
                 #RETURN QUEUES FOR ADDITION TO ZODB
                 for qid, qdetails in queues.items():
-                        print "Failed to get data for queue %s in device %s | consumerCount=%s queueSize=%s enqueueCount=%s dequeueCount=%s" % (component, device, qdetails[1], qdetails[2], qdetails[3], qdetails[4])
-			time.sleep(1)
-                        sys.exit(0)
+			#print "\n" + qid
+			#print "Consumer count: %s, Queue size: %s, Enqueue Count: %s" % (qdetails[1], qdetails[2], qdetails[3])
+                        #print "Failed to get data for queue %s in device %s | consumerCount=%s queueSize=%s enqueueCount=%s dequeueCount=%s" % (component, device, qdetails[1], qdetails[2], qdetails[3], qdetails[4])
+			print "data for queue %s in device %s | consumerCount=%s queueSize=%s enqueueCount=%s dequeueCount=%s" % (qid, device, qdetails[1], qdetails[2], qdetails[3], qdetails[4])
+			#time.sleep(1)
+                        #sys.exit(0)
         else:
                 #ERROR
 		time.sleep(1)

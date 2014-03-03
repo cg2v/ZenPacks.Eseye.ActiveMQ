@@ -3,8 +3,10 @@
 import logging
 import re
 import time
-import json
 import stomp
+
+from ZenPacks.Eseye.ActiveMQ.stomputil import AppListener
+from ZenPacks.Eseye.ActiveMQ.amqutil import run_poll_loop
 
 from Products.ZenModel.Device import Device
 from Products.ZenUtils.ZenScriptBase import ZenScriptBase
@@ -37,29 +39,29 @@ class ActiveMQMap(PythonPlugin):
                 password = getattr(device, 'zActiveMQPassword', None)
                 port=getattr(device, 'zActiveMQStompPort', 61613)
                 sslport=getattr(device, 'zActiveMQStompSslPort', 61612)
-                usessl=getattr('zActiveMQUseSsl', False)
+                usessl=getattr(device, 'zActiveMQUseSsl', True)
 
                 conn = stomp.Connection([(ipaddress, sslport if usessl else port)], use_ssl=usessl)
                 if conn:
                         log.debug('Connection to %s successfully established' % ipaddress)
-                listener = MyListener()
+                listener = AppListener()
                 conn.set_listener('', listener)
-                listener.set_logger(log)
-                #log.info('Listener added')
                 conn.start()
-                conn.connect(wait=True, username=user, passcode=password)
-                conn.subscribe(destination='/temp-queue/ActiveMQ.Queues', ack='auto', transformation="jms-map-json", id="zenoss")
-
-                #log.info("Subscribed to /temp-queue/ActiveMQ.Queues")
-                conn.send(body="", destination='ActiveMQ.Statistics.Destination.>', headers={'reply-to':'/temp-queue/ActiveMQ.Queues'})
-
-                time.sleep(10)
-                conn.unsubscribe(id="zenoss")
-                conn.disconnect()
-               #log.info("Disconnected after timeout.")
-
-
-                results = listener.get_queues()
+                conn.connect(wait=False, username=user, passcode=password)
+		listener.wait(10)
+		if not listener.ok():
+			log.error("Cannot connect to ActiveMQ: {0}".format(listener.get_error_message()))
+			return None
+		(queues, ok, errmsg)=run_poll_loop(conn, listener, '>', logger=log)
+		if not ok:
+			log.error("Cannot fetch statistics from ActiveMQ: {0}".format(errmsg))
+			return None
+		if queues is None:
+			return None
+		results={}
+		for qid, qdata in queues.items():
+			results[qid]=qid
+		#log.info('got %s' % results)
                 return results
 
 
@@ -72,13 +74,12 @@ class ActiveMQMap(PythonPlugin):
 
                 # The number of queues is just the length of your results dictionary
 
-		queues = results
-
-		num_queues = len(queues)
-                maps = []
 
                 # Object map for the ActiveMQServer device itself
                 if results:
+		    queues = results
+		    num_queues = len(queues)
+		    maps = []
                     log.info("Found some queues for %s \n" % (device.id))
                     om = self.objectMap()
    		    om.setHWTag = "Number of Queues = " + str(num_queues)
@@ -104,7 +105,7 @@ class ActiveMQMap(PythonPlugin):
                     modname='ZenPacks.Eseye.ActiveMQ.ActiveMQQueue',
                     objmaps=queuemaps))
 
-                    log.info(' queuemaps om is %s \n' % (queuemaps))
+                    #log.info(' queuemaps om is %s \n' % (queuemaps))
                     return maps
 
 		else:
