@@ -3,7 +3,7 @@
 # or saved.  Do not modify them directly here.
 # NB: PACKAGES is deprecated
 NAME = "ZenPacks.Eseye.ActiveMQ"
-VERSION = "0.8"
+VERSION = "0.9"
 AUTHOR = "Jose Salvatierra"
 LICENSE = "GPLv2"
 NAMESPACE_PACKAGES = ['ZenPacks', 'ZenPacks.Eseye']
