@@ -86,11 +86,11 @@ def main(argv):
 	if not listener.ok():
 		print "ACTIVEMQ ERROR: Cannot get connect to activemq"
 		print listener.get_error_message()
-		#sys.exit(2)
+		sys.exit(2)
 	(queues, ok, errmsg)=run_poll_loop(conn, listener, component)
 	if not ok:
 		print "ACTIVEMQ ERROR: Cannot get activemq statistics"
-		print emsg
+		print errmsg
 		sys.exit(2)
 
         if len(queues) > 0:
