@@ -69,7 +69,7 @@ def run_poll_loop(conn, listener, component, timer=10, logger=logging):
                 size = data['size']
                 #enqueueCount is the total number of messages sent to this queue since the last broker restart.
                 enqueueCount = data['enqueueCount']
-                dequeueCount = data['enqueueCount']
+                dequeueCount = data['dequeueCount']
                 if not re.search('ActiveMQ\.Statistics\.', queueName):
                     queues[queueName] = [queueName, consumerCount, size, enqueueCount, dequeueCount]
                     if queueName == component:
